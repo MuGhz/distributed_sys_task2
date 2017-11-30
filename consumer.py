@@ -33,11 +33,12 @@ def update_db(msg):
 
 def callback(ch, method, properties, body):
 	try :
+		body = body.replace(b"'", b'"')
 		msg = json.loads(body.decode("utf-8"))
 		print ("[x] ",msg)
 		update_db(msg)
 	except Exception as e:
-		print ("[E] Error :",e)
+		print ("[E] Error :",body, "karena ", e)
 
 channel.basic_consume(callback,
                       queue=queue_name,
