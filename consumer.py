@@ -32,9 +32,12 @@ def update_db(msg):
 	database.close()
 
 def callback(ch, method, properties, body):
-	msg = json.loads(body.decode("utf-8"))
-	print ("[x] ",msg)
-	update_db(msg)
+	try :
+		msg = json.loads(body.decode("utf-8"))
+		print ("[x] ",msg)
+		update_db(msg)
+	except Exception as e:
+		print ("[E] Error :",e)
 
 channel.basic_consume(callback,
                       queue=queue_name,
