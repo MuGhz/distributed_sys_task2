@@ -1,0 +1,29 @@
+# publisher.py
+import pika, json, datetime, time
+
+params = pika.URLParameters('amqp://sisdis:sisdis@172.17.0.3:5672')
+connection = pika.BlockingConnection(params)
+channel = connection.channel()
+
+def ping():
+	channel.exchange_declare(exchange='EX_PING',exchange_type='fanout')
+	while True:
+		msg = {}
+		msg['action']= 'ping'
+		msg['npm']= '1406559055'
+		msg['ts']= '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
+		msg = json.dumps(msg)
+		channel.basic_publish(exchange='EX_PING',routing_key='',body=msg)
+		print ("[x] Message sent to consumer")
+		time.sleep(5)
+
+def register(user_id,nama,sender_id):
+	channel.exchange_declare(exchange='EX_REGISTER',exchange_type='direct')
+	msg = {}
+	msg['action'] = 'register'
+	msg['user_id']= user_id
+	msg['nama']= nama
+	msg['sender_id'] = sender_id
+	msg['type'] = 'request'
+	msg['ts'] ='{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
+	msg = msg.json.dumps(msg)

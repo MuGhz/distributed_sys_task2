@@ -2,7 +2,7 @@
 import pika, json
 from peewee import *
 from models import *
-
+from datetime import datetime
 database = SqliteDatabase('tugas2.db')
 
 params = pika.URLParameters('amqp://sisdis:sisdis@172.17.0.3:5672')
@@ -21,19 +21,19 @@ def update_db(msg):
 	try :
 		npm =msg['npm']
 		ts=msg['ts']
+		ts = datetime.strptime(ts,'%Y-%m-%d %H:%M:%S')
 	except Exception as e:
 		print (e) 
 	try :
-		user,flag = User.get_or_create(npm=npm)
-		user.ts = ts
-		user.save()
+		quorum,flag = Quorum.get_or_create(npm=npm)
+		quorum.timestamp = ts
+		quorum.save()
 	except Exception as e:
 		print (e)
 	database.close()
 
 def callback(ch, method, properties, body):
 	try :
-		body = body.replace(b"'", b'"')
 		msg = json.loads(body.decode("utf-8"))
 		print ("[x] ",msg)
 		update_db(msg)
