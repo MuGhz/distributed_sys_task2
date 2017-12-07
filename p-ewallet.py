@@ -19,15 +19,15 @@ def response_register(ch, method, properties, body):
     channel.close()
 
 def register(user_id,nama,req_id):
-    channel = connection.channel()
-    channel.exchange_declare(exchange='EX_REGISTER',exchange_type='direct')
+	channel = connection.channel()
+	channel.exchange_declare(exchange='EX_REGISTER',exchange_type='direct',durable=True)
 	msg = {}
 	msg['action']= 'register'
 	msg['user_id']= user_id
-    msg['nama'] = nama
-    msg['sender_id'] = '1406559055'
-    msg['type'] = 'request'
-    msg['ts']= '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
+	msg['nama'] = nama
+	msg['sender_id'] = '1406559055'
+	msg['type'] = 'request'
+	msg['ts']= '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
 	msg = json.dumps(msg)
 	channel.basic_publish(exchange='EX_REGISTER',routing_key='REQ_'+req_id,body=msg)
 
@@ -41,7 +41,7 @@ def register(user_id,nama,req_id):
 
 def saldo(user_id,req_id):
     channel = connection.channel()
-    channel.exchange_declare(exchange='EX_GET_SALDO',exchange_type='direct')
+    channel.exchange_declare(exchange='EX_GET_SALDO',exchange_type='direct',durable=True)
     msg = {}
     msg['action'] = 'get_saldo'
     msg['user_id'] = user_id
@@ -53,7 +53,7 @@ def saldo(user_id,req_id):
 
 def transfer(user_id,nilai,req_id):
     channel = connection.channel()
-    channel.exchange_declare(exchange='EX_TRANSFER',exchange_type='direct')
+    channel.exchange_declare(exchange='EX_TRANSFER',exchange_type='direct',durable=True)
     msg = {}
     msg['action'] = 'transfer'
     msg['user_id'] = user_id
