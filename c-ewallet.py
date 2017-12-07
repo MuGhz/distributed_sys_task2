@@ -9,11 +9,11 @@ params = pika.URLParameters('amqp://sisdis:sisdis@172.17.0.3:5672')
 connection = pika.BlockingConnection(params)
 channel = connection.channel()
 
-channel.exchange_declare(exchange='EX_REGISTER', exchange_type='direct')
+channel.exchange_declare(exchange='EX_REGISTER', exchange_type='direct',durable=True)
 result = channel.queue_declare(exclusive=True)
 queue_name = result.method.queue
 channel.queue_bind(exchange='EX_REGISTER',queue=queue_name,routing_key='REQ_1406559055')
-
+print ('[X] Waiting for logs')
 def register(msg):
 	database.connect()
 	resp = {}
