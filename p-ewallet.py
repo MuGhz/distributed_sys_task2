@@ -3,7 +3,7 @@ import pika, json, datetime, time
 
 params = pika.URLParameters('amqp://sisdis:sisdis@172.17.0.3:5672')
 connection = pika.BlockingConnection(params)
-channel = connection.channel()
+channel = ''
 n=input()
 arg=n.split(" ")
 
@@ -16,8 +16,10 @@ def response_register(ch, method, properties, body):
         print ("status_register = ",msg['status_register'])
     except Exception as e:
         print ("[E] Error :",e)
+    channel.close()
 
 def register(user_id,nama,req_id):
+    channel = connection.channel()
     channel.exchange_declare(exchange='EX_REGISTER',exchange_type='direct')
 	msg = {}
 	msg['action']= 'register'
@@ -29,15 +31,16 @@ def register(user_id,nama,req_id):
 	msg = json.dumps(msg)
 	channel.basic_publish(exchange='EX_REGISTER',routing_key='REQ_'+req_id,body=msg)
 
-
     result = channel.queue_declare(exclusive=True)
     queue_name = result.method.queue
     channel.queue_bind(exchange='EX_REGISTER',queue=queue_name,routing_key='RESP_1406559055')
     channel.basic_consume(request_register, queue=queue_name, no_ack=True)
+    channel.start_consuming()
 
 
 
 def saldo(user_id,req_id):
+    channel = connection.channel()
     channel.exchange_declare(exchange='EX_GET_SALDO',exchange_type='direct')
     msg = {}
     msg['action'] = 'get_saldo'
@@ -49,6 +52,7 @@ def saldo(user_id,req_id):
 	channel.basic_publish(exchange='EX_GET_SALDO',routing_key='REQ_'+req_id,body=msg)
 
 def transfer(user_id,nilai,req_id):
+    channel = connection.channel()
     channel.exchange_declare(exchange='EX_TRANSFER',exchange_type='direct')
     msg = {}
     msg['action'] = 'transfer'
@@ -74,4 +78,3 @@ elif (arg[0] == 'transfer'):
     nilai=arg[2]
     req_id=arg[3]
     transfer(user_id,nilai,req_id)
-channel.start_consuming()
