@@ -44,7 +44,7 @@ def register(msg):
 def request_register(ch, method, properties, body):
 	try :
 		msg = json.loads(body.decode("utf-8"))
-		print ("[x] ",msg['action'])
+		print ("[x] ",msg['action']," message :",msg)
 		register(msg)
 	except Exception as e:
 		print ("[E] Error :",e)

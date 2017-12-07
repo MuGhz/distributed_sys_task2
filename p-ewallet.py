@@ -11,6 +11,7 @@ def response_register(ch, method, properties, body):
     try :
         msg = json.loads(body.decode("utf-8"))
     except Exception as e:
+        print ("[E] Receive :",body)
         print ("[E] Error :",e)
     try :
         print ("status_register = ",msg['status_register'])
@@ -30,11 +31,12 @@ def register(user_id,nama,req_id):
     msg['ts']= '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
     msg = json.dumps(msg)
     channel.basic_publish(exchange='EX_REGISTER',routing_key='REQ_'+req_id,body=msg)
-
+    print ("[x] published")
     result = channel.queue_declare(exclusive=True)
     queue_name = result.method.queue
     channel.queue_bind(exchange='EX_REGISTER',queue=queue_name,routing_key='RESP_1406559055')
-    channel.basic_consume(request_register, queue=queue_name, no_ack=True)
+    channel.basic_consume(response_register, queue=queue_name, no_ack=True)
+    print ("waiting response")
     channel.start_consuming()
 
 
