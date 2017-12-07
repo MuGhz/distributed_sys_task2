@@ -20,10 +20,9 @@ def update_db(msg):
 	database.connect()
 	try :
 		npm =msg['npm']
-		ts=msg['ts']
-		ts = datetime.strptime(ts,'%Y-%m-%d %H:%M:%S')
+		ts= '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
 	except Exception as e:
-		print (e) 
+		print (e)
 	try :
 		quorum,flag = Quorum.get_or_create(npm=npm)
 		quorum.timestamp = ts
