@@ -17,7 +17,7 @@ def response_register(ch, method, properties, body):
         print ("status_register = ",msg['status_register'])
     except Exception as e:
         print ("[E] Error :",e)
-    channel.close()
+    connection.close()
 
 def register(user_id,nama,req_id):
     channel = connection.channel()

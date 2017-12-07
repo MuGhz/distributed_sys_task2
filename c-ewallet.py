@@ -1,5 +1,5 @@
 #consumer.py
-import pika, json, datetime
+import pika, json, datetime, time
 from peewee import *
 from models import *
 
@@ -25,21 +25,23 @@ def register(msg):
 		sender_id = msg['sender_id']
 		nama =msg['nama']
 		ts=msg['ts']
-		ts = datetime.strptime(ts,'%Y-%m-%d %H:%M:%S')
+		ts = time.strptime(ts,'%Y-%m-%d %H:%M:%S')
 	except Exception as e:
+		print ("[E] Error :",e)
 		resp['status_register'] = -99
 		resp = json.dumps(resp)
-		return channel.basic_publish(exchange='EX_REGISTER',routing_key='REQ_'+sender_id,body=resp)
+		return channel.basic_publish(exchange='EX_REGISTER',routing_key='RESP_'+sender_id,body=resp)
 	try :
 		User.create(name=nama,npm=user_id)
 		database.close()
 	except Exception as e:
+		print ("[E] Error :",e)
 		resp['status_register'] = -4
 		resp = json.dumps(resp)
-		return channel.basic_publish(exchange='EX_REGISTER',routing_key='REQ_'+sender_id,body=resp)
+		return channel.basic_publish(exchange='EX_REGISTER',routing_key='RESP_'+sender_id,body=resp)
 	resp['status_register'] = 1
 	resp = json.dumps(resp)
-	return channel.basic_publish(exchange='EX_REGISTER',routing_key='REQ_'+sender_id,body=resp)
+	return channel.basic_publish(exchange='EX_REGISTER',routing_key='RESP_'+sender_id,body=resp)
 
 def request_register(ch, method, properties, body):
 	try :
