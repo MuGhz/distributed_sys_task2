@@ -68,7 +68,7 @@ def saldo(user_id,req_id):
     result = channel.queue_declare()
     queue_name = result.method.queue
     channel.queue_bind(exchange='EX_GET_SALDO',queue=queue_name,routing_key='RESP_1406559055')
-    channel.basic_consume(response_transfer, queue=queue_name, no_ack=True)
+    channel.basic_consume(response_saldo, queue=queue_name, no_ack=True)
     channel.basic_publish(exchange='EX_GET_SALDO',routing_key='REQ_'+req_id,body=msg)
     channel.start_consuming()
 

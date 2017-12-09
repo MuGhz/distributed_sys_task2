@@ -132,14 +132,14 @@ def get_saldo(msg):
 		resp = json.dumps(resp)
 		return channel.basic_publish(exchange='EX_GET_SALDO',routing_key='RESP_'+sender_id,body=resp)
 	try:
-		reps['nilai_saldo'] = user.saldo
+		resp['nilai_saldo'] = user.saldo
 	except Exception as e:
 			print ("[E] Error :",e)
 			resp['nilai_saldo'] = -4
 			resp = json.dumps(resp)
 			return channel.basic_publish(exchange='EX_GET_SALDO',routing_key='RESP_'+sender_id,body=resp)
 	resp = json.dumps(resp)
-	return channel.basic_publish(exchange='EX_TRANSFER',routing_key='RESP_'+sender_id,body=resp)
+	return channel.basic_publish(exchange='EX_GET_SALDO',routing_key='RESP_'+sender_id,body=resp)
 
 
 def request_get_saldo(ch, method, properties, body):
