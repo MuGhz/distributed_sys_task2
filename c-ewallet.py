@@ -25,8 +25,6 @@ def register(msg):
 		user_id = msg['user_id']
 		sender_id = msg['sender_id']
 		nama =msg['nama']
-		ts=msg['ts']
-		ts = time.strptime(ts,'%Y-%m-%d %H:%M:%S')
 	except Exception as e:
 		print ("[E] Error :",e)
 		resp['status_register'] = -99
