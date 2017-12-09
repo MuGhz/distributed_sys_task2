@@ -101,7 +101,7 @@ def request_transfer(ch, method, properties, body):
 		msg = json.loads(body.decode("utf-8"))
 		print ("[x] ",msg['action']," message :",msg)
 		transfer(msg)
-	except Exception as e"
+	except Exception as e:
 		print ("[E] Error :",e)
 
 channel.basic_consume(request_transfer, queue=queue_name, no_ack=True)
@@ -147,7 +147,7 @@ def request_get_saldo(ch, method, properties, body):
 		msg = json.loads(body.decode("utf-8"))
 		print ("[x] ",msg['action']," message :",msg)
 		get_saldo(msg)
-	except Exception as e"
+	except Exception as e:
 		print ("[E] Error :",e)
 
 channel.basic_consume(request_get_saldo, queue=queue_name, no_ack=True)

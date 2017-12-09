@@ -107,15 +107,15 @@ def response_transfer(ch, method, properties, body):
     if msg['status_transfer'] == 1 :
         ambil(user_id,nilai)
         print ("[X] Transfer berhasil! ")
-    elif msg[''status_transfer] == -2 :
+    elif msg['status_transfer'] == -2 :
         print ("[E] Quorum tidak terpenuhi")
-    elif msg[''status_transfer] == -1 :
+    elif msg['status_transfer'] == -1 :
         print ("[E] USER_ID tidak terdaftar, silahkan melakukan registrasi")
-    elif msg[''status_transfer] == -4 :
+    elif msg['status_transfer'] == -4 :
         print ("[E] Terjadi kesalahan pada database")
-    elif msg[''status_transfer] == -5 :
+    elif msg['status_transfer'] == -5 :
         print ("[E] Nilai transfer diluar ketentuan")
-    elif msg[''status_transfer] == -99 :
+    elif msg['status_transfer'] == -99 :
         print ("[E] Terjadi kesalahan, belum terdefinisi")
     connection.close()
 

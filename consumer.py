@@ -1,8 +1,8 @@
 #consumer.py
-import pika, json
+import pika, json, datetime
 from peewee import *
 from models import *
-from datetime import datetime
+
 database = SqliteDatabase('tugas2.db')
 
 params = pika.URLParameters('amqp://sisdis:sisdis@172.17.0.3:5672')
