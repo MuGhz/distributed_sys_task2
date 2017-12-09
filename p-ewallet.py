@@ -70,6 +70,8 @@ def saldo(user_id,req_id):
     channel.queue_bind(exchange='EX_GET_SALDO',queue=queue_name,routing_key='RESP_1406559055')
     channel.basic_consume(response_saldo, queue=queue_name, no_ack=True)
     channel.basic_publish(exchange='EX_GET_SALDO',routing_key='REQ_'+req_id,body=msg)
+    print ("[X] Saldo request published")
+    print ("waiting response")
     channel.start_consuming()
 
 def simpan(user_id,nilai):
