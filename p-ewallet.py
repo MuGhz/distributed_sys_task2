@@ -30,12 +30,12 @@ def register(user_id,nama,req_id):
     msg['type'] = 'request'
     msg['ts']= '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
     msg = json.dumps(msg)
-    channel.basic_publish(exchange='EX_REGISTER',routing_key='REQ_'+req_id,body=msg)
-    print ("[x] published")
     result = channel.queue_declare(exclusive=True)
     queue_name = result.method.queue
     channel.queue_bind(exchange='EX_REGISTER',queue=queue_name,routing_key='RESP_1406559055')
     channel.basic_consume(response_register, queue=queue_name, no_ack=True)
+    channel.basic_publish(exchange='EX_REGISTER',routing_key='REQ_'+req_id,body=msg)
+    print ("[x] published")
     print ("waiting response")
     channel.start_consuming()
 

@@ -2,8 +2,9 @@
 import pika, json, datetime, time
 from peewee import *
 from models import *
+from playhouse.sqlite_ext import SqliteExtDatabase
 
-database = SqliteDatabase('tugas2.db')
+database = SqliteExtDatabase('tugas2.db', journal_mode='WAL')
 
 params = pika.URLParameters('amqp://sisdis:sisdis@172.17.0.3:5672')
 connection = pika.BlockingConnection(params)
