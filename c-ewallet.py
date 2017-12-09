@@ -5,7 +5,7 @@ from models import *
 from playhouse.sqlite_ext import SqliteExtDatabase
 
 database = SqliteExtDatabase('tugas2.db', journal_mode='WAL')
-
+database.connect()
 params = pika.URLParameters('amqp://sisdis:sisdis@172.17.0.3:5672')
 connection = pika.BlockingConnection(params)
 channel = connection.channel()
@@ -16,7 +16,6 @@ queue_name = result.method.queue
 channel.queue_bind(exchange='EX_REGISTER',queue=queue_name,routing_key='REQ_1406559055')
 print ('[X] Waiting for logs')
 def register(msg):
-	database.connect()
 	resp = {}
 	resp['action'] = 'register'
 	resp['type'] = 'response'
@@ -32,7 +31,6 @@ def register(msg):
 		return channel.basic_publish(exchange='EX_REGISTER',routing_key='RESP_'+sender_id,body=resp)
 	try :
 		User.create(name=nama,npm=user_id)
-		database.close()
 	except Exception as e:
 		print ("[E] Error :",e)
 		resp['status_register'] = -4
@@ -57,7 +55,6 @@ result = channel.queue_declare()
 queue_name = result.method.queue
 channel.queue_bind(exchange='EX_TRANSFER',queue=queue_name,routing_key='REQ_1406559055')
 def transfer(msg):
-	database.connect()
 	resp = {}
 	resp['action'] = 'transfer'
 	resp['type'] = 'response'
@@ -111,7 +108,6 @@ result = channel.queue_declare()
 queue_name = result.method.queue
 channel.queue_bind(exchange='EX_GET_SALDO',queue=queue_name,routing_key='REQ_1406559055')
 def get_saldo(msg):
-	database.connect()
 	resp = {}
 	resp['action'] = 'get_saldo'
 	resp['type'] = 'response'
