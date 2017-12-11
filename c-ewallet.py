@@ -148,4 +148,73 @@ def request_get_saldo(ch, method, properties, body):
 
 channel.basic_consume(request_get_saldo, queue=queue_name, no_ack=True)
 
+channel.exchange_declare(exchange='EX_GET_TOTAL_SALDO', exchange_type='direct',durable=True)
+result = channel.queue_declare()
+queue_name = result.method.queue
+channel.queue_bind(exchange='EX_GET_TOTAL_SALDO',queue=queue_name,routing_key='REQ_1406559055')
+def get_total_saldo(msg):
+	resp = {}
+	resp['action'] = 'get_total_saldo'
+	resp['type'] = 'response'
+	resp['ts']= '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
+	try :
+		user_id = msg['user_id']
+		sender_id = msg['sender_id']
+	except Exception as e:
+		print ("[E] Error :",e)
+		resp['nilai_saldo'] = -99
+		resp = json.dumps(resp)
+		return channel.basic_publish(exchange='EX_GET_TOTAL_SALDO',routing_key='RESP_'+sender_id,body=resp)
+	try:
+		users = Quorum.select()
+	except Exception as e:
+		print ("[E] Error:",e)
+		resp['nilai_saldo'] = -4
+		resp = json.dumps(resp)
+		return channel.basic_publish(exchange='EX_GET_TOTAL_SALDO',routing_key='RESP_'+sender_id,body=resp)
+
+	channel.exchange_declare(exchange='EX_GET_SALDO',exchange_type='direct',durable=True)
+	result = channel.queue_declare()
+	queue_name = result.method.queue
+	for user in users:
+		npm = user.npm
+	    msg = {}
+	    msg['action'] = 'get_saldo'
+	    msg['user_id'] = user_id
+	    msg['sender_id'] = '1406559055'
+	    msg['type'] = 'request'
+	    msg['ts']= '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
+	    msg = json.dumps(msg)
+		channel.basic_publish(exchange='EX_GET_SALDO',routing_key='REQ_'+npm,body=msg)
+	owner = User.get(npm="1406559055")
+	total = owner.saldo
+	n = len(users)-1
+	while n > 0:
+		method,properties,body = channel.basic_get(queue=queue_name,no_ack=True)
+		try:
+			res = json.loads(body.decode("utf-8"))
+		except Exception as e:
+			print ("[E] Error :",e)
+		try :
+			saldo = res['nilai_saldo']
+			n += 1
+		except Exception as e:
+			print ("[E] Error :",e)
+		if saldo > 0 :
+			total += saldo
+		elif saldo < 0 :
+		 	total = saldo
+			break
+	resp['nilai_saldo'] = total
+	return channel.basic_publish(exchange='EX_GET_TOTAL_SALDO',routing_key='RESP_'+sender_id,body=resp)
+
+def request_get_total_saldo(ch, method, properties, body):
+	try:
+		msg = json.loads(body.decode("utf-8"))
+		print ("[x] ",msg['action']," message :",msg)
+		get_total_saldo(msg)
+	except Exception as e:
+		print ("[E] Error :",e)
+channel.basic_consume(request_get_total_saldo, queue=queue_name, no_ack=True)
+
 channel.start_consuming()

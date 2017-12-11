@@ -46,16 +46,16 @@ def register(user_id,nama,req_id):
     channel.start_consuming()
 
 def response_saldo(ch, method, properties, body):
-        try :
-            msg = json.loads(body.decode("utf-8"))
-        except Exception as e:
-            print ("[E] Receive :",body)
-            print ("[E] Error :",e)
-        try :
-            print ("nilai_saldo = ",msg['nilai_saldo'])
-        except Exception as e:
-            print ("[E] Error :",e)
-        connection.close()
+    try :
+        msg = json.loads(body.decode("utf-8"))
+    except Exception as e:
+        print ("[E] Receive :",body)
+        print ("[E] Error :",e)
+    try :
+    print ("nilai_saldo = ",msg['nilai_saldo'])
+    except Exception as e:
+        print ("[E] Error :",e)
+    connection.close()
 
 def saldo(user_id,req_id):
     channel = connection.channel()
@@ -143,6 +143,37 @@ def transfer(user_id,nilai,req_id):
     print ("waiting response")
     channel.start_consuming()
 
+def response_totalSaldo(ch, method, properties, body):
+    try :
+        msg = json.loads(body.decode("utf-8"))
+    except Exception as e:
+        print ("[E] Receive :",body)
+        print ("[E] Error :",e)
+    try :
+        print ("nilai_saldo = ",msg['nilai_saldo'])
+    except Exception as e:
+        print ("[E] Error :",e)
+    connection.close()
+
+def totalSaldo(user_id,req_id):
+    channel = connection.channel()
+    channel.exchange_declare(exchange='EX_GET_TOTAL_SALDO',exchange_type='direct',durable=True)
+    msg = {}
+    msg['action'] = 'get_total_saldo'
+    msg['user_id'] = user_id
+    msg['sender_id'] = '1406559055'
+    msg['type'] = 'request'
+    msg['ts']= '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
+    msg = json.dumps(msg)
+    result = channel.queue_declare()
+    queue_name = result.method.queue
+    channel.queue_bind(exchange='EX_GET_TOTAL_SALDO',queue=queue_name,routing_key='RESP_1406559055')
+    channel.basic_consume(response_totalSaldo, queue=queue_name, no_ack=True)
+    channel.basic_publish(exchange='EX_GET_TOTAL_SALDO',routing_key='REQ_'+req_id,body=msg)
+    print ("[X] Get total saldo request published")
+    print ("waiting response")
+    channel.start_consuming()
+
 if (arg[0] == 'register'):
     user_id = arg[1]
     nama = arg[2]
@@ -167,3 +198,6 @@ elif (arg[0] == 'ambil'):
     user_id=arg[1]
     nilai = arg[2]
     ambil(user_id,nilai)
+elif (arg[0] == 'totalSaldo'):
+    user_id=arg[1]
+    req_id=arg[2]
