@@ -178,13 +178,13 @@ def get_total_saldo(msg):
 	queue_name = result.method.queue
 	for user in users:
 		npm = user.npm
-	    msg = {}
-	    msg['action'] = 'get_saldo'
-	    msg['user_id'] = user_id
-	    msg['sender_id'] = '1406559055'
-	    msg['type'] = 'request'
-	    msg['ts']= '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
-	    msg = json.dumps(msg)
+		msg = {}
+		msg['action'] = 'get_saldo'
+		msg['user_id'] = user_id
+		msg['sender_id'] = '1406559055'
+		msg['type'] = 'request'
+		msg['ts']= '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
+		msg = json.dumps(msg)
 		channel.basic_publish(exchange='EX_GET_SALDO',routing_key='REQ_'+npm,body=msg)
 	owner = User.get(npm="1406559055")
 	total = owner.saldo
@@ -203,7 +203,7 @@ def get_total_saldo(msg):
 		if saldo > 0 :
 			total += saldo
 		elif saldo < 0 :
-		 	total = saldo
+			total = saldo
 			break
 	resp['nilai_saldo'] = total
 	return channel.basic_publish(exchange='EX_GET_TOTAL_SALDO',routing_key='RESP_'+sender_id,body=resp)
