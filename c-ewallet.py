@@ -176,6 +176,7 @@ def get_total_saldo(msg):
 	channel.exchange_declare(exchange='EX_GET_SALDO',exchange_type='direct',durable=True)
 	result = channel.queue_declare()
 	queue_name = result.method.queue
+	users = [x for x in users if x.npm != '1406559055']
 	for user in users:
 		npm = user.npm
 		msg = {}
@@ -191,6 +192,7 @@ def get_total_saldo(msg):
 	n = len(users)-1
 	while n > 0:
 		method,properties,body = channel.basic_get(queue=queue_name,no_ack=True)
+		print (body)
 		try:
 			res = json.loads(body.decode("utf-8"))
 		except Exception as e:
