@@ -52,7 +52,7 @@ def response_saldo(ch, method, properties, body):
 		print ("[E] Receive :",body)
 		print ("[E] Error :",e)
 	try :
-	print ("nilai_saldo = ",msg['nilai_saldo'])
+		print ("nilai_saldo = ",msg['nilai_saldo'])
 	except Exception as e:
 		print ("[E] Error :",e)
 	connection.close()
@@ -185,19 +185,20 @@ elif (arg[0] == 'saldo'):
 	saldo(user_id,req_id)
 elif (arg[0] == 'transfer'):
 	user_id=arg[1]
-	nilai=arg[2]
+	nilai= int(arg[2])
 	transfer_id = user_id
 	transfer_nilai = nilai
 	req_id=arg[3]
 	transfer(user_id,nilai,req_id)
 elif (arg[0] == 'simpan'):
 	user_id=arg[1]
-	nilai = arg[2]
+	nilai = int(arg[2])
 	simpan(user_id,nilai)
 elif (arg[0] == 'ambil'):
 	user_id=arg[1]
-	nilai = arg[2]
+	nilai = int(arg[2])
 	ambil(user_id,nilai)
 elif (arg[0] == 'totalSaldo'):
 	user_id=arg[1]
 	req_id=arg[2]
+	totalSaldo(user_id,req_id)
