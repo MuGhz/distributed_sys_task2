@@ -10,6 +10,8 @@ connection = pika.BlockingConnection(params)
 channel = ''
 n=input()
 arg=n.split(" ")
+transfer_id = ''
+transfer_nilai = 0
 
 def response_register(ch, method, properties, body):
     try :
@@ -107,7 +109,7 @@ def response_transfer(ch, method, properties, body):
     except Exception as e:
         print ("[E] Error :",e)
     if msg['status_transfer'] == 1 :
-        ambil(user_id,nilai)
+        ambil(transfer_id,transfer_nilai)
         print ("[X] Transfer berhasil! ")
     elif msg['status_transfer'] == -2 :
         print ("[E] Quorum tidak terpenuhi")
@@ -153,6 +155,8 @@ elif (arg[0] == 'saldo'):
 elif (arg[0] == 'transfer'):
     user_id=arg[1]
     nilai=arg[2]
+    transfer_id = user_id
+    transfer_nilai = nilai
     req_id=arg[3]
     transfer(user_id,nilai,req_id)
 elif (arg[0] == 'simpan'):
