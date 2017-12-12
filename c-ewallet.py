@@ -259,7 +259,7 @@ def get_total_saldo(msg):
 			elif saldo < 0 :
 				resp['nilai_saldo'] = -3
 				resp = json.dumps(resp)
-				return channel.basic_publish((exchange='EX_GET_TOTAL_SALDO',routing_key='RESP_'+sender_id,body=resp)
+				return channel.basic_publish(exchange='EX_GET_TOTAL_SALDO',routing_key='RESP_'+sender_id,body=resp)
 				break
 			n -= 1
 		except Exception as e:
