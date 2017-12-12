@@ -18,15 +18,16 @@ print ('[X] Waiting for logs')
 def count_quorum():
 	q = Quorum.select()
 	now = datetime.datetime.now()
-	myquorum = ['1406559061','1406559042','1406573356','1406559055','1406623266']
+	#1406577386
+	myquorum = ['1406559061','1406559042','1406573356','1406559055','1406623266','1406577386']
 	q = [x for x in q if x.npm in myquorum]
 	z = []
 	for x in q:
 		delta = now - x.timestamp
 		if (delta.total_seconds() < 60):
 			z.append(x)
-	#result = (len(z)/len(q)) * 100
-	result = 100
+	result = (len(z)/len(q)) * 100
+	#result = 100
 	print ("Hasil Quorum :",result," aktif:",len(z),"total :",len(q))
 	return (result,q)
 
@@ -200,7 +201,7 @@ def get_total_saldo(msg):
 	resp['action'] = 'get_total_saldo'
 	resp['type'] = 'response'
 	resp['ts']= '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
-	resp['sender_id'] = sender_id
+	resp['sender_id'] = msg['sender_id']
 	try :
 		result,q = count_quorum()
 		if (result < 100) :
