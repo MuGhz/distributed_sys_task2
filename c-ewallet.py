@@ -176,13 +176,11 @@ def get_total_saldo(msg):
 	channel.exchange_declare(exchange='EX_GET_SALDO',exchange_type='direct',durable=True)
 	result = channel.queue_declare()
 	queue_name = result.method.queue
-	users = ['1406579100',  # wahyu
-        '1406543574',  # oda
-        '1406543845',  # gilang
-        '1306398983',  # irfan
+	users = ['1406577386',  # nanda
+	'1406559036' #gales
         '1406559055'  # ghozi
 	]
-	users = [x for x in users if x.npm != '1406559055']
+	users = [x for x in users if x != '1406559055']
 	for user in users:
 		#npm = user.npm
 		msg = {}
@@ -205,14 +203,14 @@ def get_total_saldo(msg):
 			print ("[E] Error :",e)
 		try :
 			saldo = res['nilai_saldo']
-			n += 1
+			n -= 1
+			if saldo > 0 :
+				total += saldo
+			elif saldo < 0 :
+				total = saldo
+				break
 		except Exception as e:
 			print ("[E] Error :",e)
-		if saldo > 0 :
-			total += saldo
-		elif saldo < 0 :
-			total = saldo
-			break
 	resp['nilai_saldo'] = total
 	return channel.basic_publish(exchange='EX_GET_TOTAL_SALDO',routing_key='RESP_'+sender_id,body=resp)
 
