@@ -258,6 +258,7 @@ def get_total_saldo(msg):
 			print ("[E] Error :",e)
 	print ("finish poll")
 	print ("total :",total," sender :",sender_id)
+	resp['sender_id'] = sender_id
 	resp['nilai_saldo'] = total
 	resp= json.dumps(resp)
 	return channel.basic_publish(exchange='EX_GET_TOTAL_SALDO',routing_key='RESP_'+sender_id,body=resp)
