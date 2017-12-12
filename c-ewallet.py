@@ -179,10 +179,11 @@ def get_total_saldo(msg):
 	queue_name = result.method.queue
 	channel.queue_bind(exchange='EX_GET_SALDO',queue=queue_name,routing_key="RESP_1406559055")
 	users = ['1406577386',  # nanda
-	'1406559036' #gales
+	'1406559036', #gales
         '1406559055'  # ghozi
 	]
 	users = [x for x in users if x != '1406559055']
+	print (users)
 	for user in users:
 		#npm = user.npm
 		msg = {}
@@ -195,8 +196,10 @@ def get_total_saldo(msg):
 		channel.basic_publish(exchange='EX_GET_SALDO',routing_key='REQ_'+user,body=msg)
 	owner = User.get(npm=user_id)
 	total = owner.saldo
-	n = len(users)-1
-	while n > 0:
+	n = len(users)
+	i = 0
+	print ("start poll")
+	while i < n:
 		method,properties,body = channel.basic_get(queue=queue_name)
 		print (body)
 		try:
@@ -204,16 +207,19 @@ def get_total_saldo(msg):
 		except Exception as e:
 			print ("[E] Error :",e)
 		try :
-			saldo = res['nilai_saldo']
-			n -= 1
+			saldo = res['nilai_saldo'] 
 			if saldo > 0 :
 				total += saldo
 			elif saldo < 0 :
 				total = saldo
 				break
+			i += 1
 		except Exception as e:
 			print ("[E] Error :",e)
+	print ("finish poll")
+	print ("total :",total," sender :",sender_id)
 	resp['nilai_saldo'] = total
+	resp= json.dumps(resp)
 	return channel.basic_publish(exchange='EX_GET_TOTAL_SALDO',routing_key='RESP_'+sender_id,body=resp)
 
 def request_get_total_saldo(ch, method, properties, body):
