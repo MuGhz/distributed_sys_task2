@@ -176,6 +176,7 @@ def get_total_saldo(msg):
 	channel.exchange_declare(exchange='EX_GET_SALDO',exchange_type='direct',durable=True)
 	result = channel.queue_declare()
 	queue_name = result.method.queue
+	channel.queue_bind(exchange='EX_GET_SALDO',queue=queue_name,routing_key="RESP_1406559055")
 	users = ['1406577386',  # nanda
 	'1406559036' #gales
         '1406559055'  # ghozi
@@ -191,11 +192,11 @@ def get_total_saldo(msg):
 		msg['ts']= '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
 		msg = json.dumps(msg)
 		channel.basic_publish(exchange='EX_GET_SALDO',routing_key='REQ_'+user,body=msg)
-	owner = User.get(npm="1406559055")
+	owner = User.get(npm=user_id)
 	total = owner.saldo
 	n = len(users)-1
 	while n > 0:
-		method,properties,body = channel.basic_get(queue=queue_name,no_ack=True)
+		method,properties,body = channel.basic_get(queue=queue_name)
 		print (body)
 		try:
 			res = json.loads(body.decode("utf-8"))
