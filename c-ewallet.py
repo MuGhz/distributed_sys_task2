@@ -17,10 +17,16 @@ channel.queue_bind(exchange='EX_REGISTER',queue=queue_name,routing_key='REQ_1406
 print ('[X] Waiting for logs')
 def count_quorum():
 	q = Quorum.select()
-	now = '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
-	x = [z for z in q if now - q.ts < 10]
-	result = (len(x)/len(q)) * 100
-	print ("Hasil Quorum :",result)
+	now = datetime.datetime.now()
+	myquorum = ['1406559061','1406559042','1406573356','1406559055']
+	q = [x for x in q if x.npm in myquorum]
+	z = []
+	for x in q:
+		delta = now - x.timestamp
+		if (delta.total_seconds() < 60):
+			z.append(x)
+	result = (len(z)/len(q)) * 100
+	print ("Hasil Quorum :",result," aktif:",len(z),"total :",len(q))
 	return (result,q)
 
 def register(msg):
@@ -49,6 +55,7 @@ def register(msg):
 		User.create(name=nama,npm=user_id)
 		resp['status_register'] = 1
 		resp = json.dumps(resp)
+		print ("REGISTER SUCCESS : ", msg['user_id']," SENDER_ID : ",msg['sender_id'])
 		return channel.basic_publish(exchange='EX_REGISTER',routing_key='RESP_'+sender_id,body=resp)
 	except Exception as e:
 		print ("[E] Error :",e)
@@ -114,6 +121,7 @@ def transfer(msg):
 		resp = json.dumps(resp)
 		return channel.basic_publish(exchange='EX_TRANSFER',routing_key='RESP_'+sender_id,body=resp)
 	resp['status_transfer'] = 1
+	print ("TRANSFER SUCCESS USER_ID :",msg['user_id']," SENDER_ID :",msg['sender_id'])
 	resp = json.dumps(resp)
 	return channel.basic_publish(exchange='EX_TRANSFER',routing_key='RESP_'+sender_id,body=resp)
 
@@ -162,6 +170,7 @@ def get_saldo(msg):
 		return channel.basic_publish(exchange='EX_GET_SALDO',routing_key='RESP_'+sender_id,body=resp)
 	try:
 		resp['nilai_saldo'] = user.saldo
+		print ("nilai_saldo : ",resp['nilai_saldo']," user_id:",msg['user_id']," sender_id:",msg['sender_id'])
 	except Exception as e:
 			print ("[E] Error :",e)
 			resp['nilai_saldo'] = -4
@@ -218,10 +227,6 @@ def get_total_saldo(msg):
 	result = channel.queue_declare()
 	queue_name = result.method.queue
 	channel.queue_bind(exchange='EX_GET_SALDO',queue=queue_name,routing_key="RESP_1406559055")
-	#users = ['1406577386',  # nanda
-	#'1406559036', #gales
-    #    '1406559055'  # ghozi
-	#]
 	users = [x for x in q if x.npm != '1406559055']
 	print (users)
 	for user in users:
@@ -249,7 +254,7 @@ def get_total_saldo(msg):
 			if saldo > 0 :
 				total += saldo
 			elif saldo < 0 :
-				total = saldo
+				total = -3
 				break
 			i += 1
 		except Exception as e:
