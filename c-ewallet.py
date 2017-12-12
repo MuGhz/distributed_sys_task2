@@ -15,11 +15,27 @@ result = channel.queue_declare()
 queue_name = result.method.queue
 channel.queue_bind(exchange='EX_REGISTER',queue=queue_name,routing_key='REQ_1406559055')
 print ('[X] Waiting for logs')
+def count_quorum():
+	q = Quorum.select()
+	now = '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
+	x = [z for z in q if now - q.ts < 10]
+	result = (len(x)/len(q)) * 100
+	print ("Hasil Quorum :",result)
+	return (result,q)
+
 def register(msg):
 	resp = {}
 	resp['action'] = 'register'
 	resp['type'] = 'response'
 	resp['ts']= '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
+	try :
+		result,q = count_quorum()
+		if (result < 50) :
+			resp['status_register'] = -2
+			resp = json.dumps(resp)
+			return channel.basic_publish(exchange='EX_REGISTER',routing_key='RESP_'+sender_id,body=resp)
+	except Exception as e:
+		print ("[E] Error :",e)
 	try :
 		user_id = msg['user_id']
 		sender_id = msg['sender_id']
@@ -60,6 +76,14 @@ def transfer(msg):
 	resp['action'] = 'transfer'
 	resp['type'] = 'response'
 	resp['ts']= '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
+	try :
+		result,q = count_quorum()
+		if (result < 50) :
+			resp['status_transfer'] = -2
+			resp = json.dumps(resp)
+			return channel.basic_publish(exchange='EX_TRANSFER',routing_key='RESP_'+sender_id,body=resp)
+	except Exception as e:
+		print ("[E] Error :",e)
 	try :
 		user_id = msg['user_id']
 		sender_id = msg['sender_id']
@@ -114,6 +138,14 @@ def get_saldo(msg):
 	resp['type'] = 'response'
 	resp['ts']= '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
 	try :
+		result,q = count_quorum()
+		if (result < 50) :
+			resp['nilai_saldo'] = -2
+			resp = json.dumps(resp)
+			return channel.basic_publish(exchange='EX_GET_SALDO',routing_key='RESP_'+sender_id,body=resp)
+	except Exception as e:
+		print ("[E] Error :",e)
+	try :
 		user_id = msg['user_id']
 		sender_id = msg['sender_id']
 	except Exception as e:
@@ -158,6 +190,14 @@ def get_total_saldo(msg):
 	resp['action'] = 'get_total_saldo'
 	resp['type'] = 'response'
 	resp['ts']= '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
+	try :
+		result,q = count_quorum()
+		if (result < 100) :
+			resp['status_register'] = -2
+			resp = json.dumps(resp)
+			return channel.basic_publish(exchange='EX_GET_TOTAL_SALDO',routing_key='RESP_'+sender_id,body=resp)
+	except Exception as e:
+		print ("[E] Error :",e)
 	try :
 		user_id = msg['user_id']
 		sender_id = msg['sender_id']
@@ -207,7 +247,7 @@ def get_total_saldo(msg):
 		except Exception as e:
 			print ("[E] Error :",e)
 		try :
-			saldo = res['nilai_saldo'] 
+			saldo = res['nilai_saldo']
 			if saldo > 0 :
 				total += saldo
 			elif saldo < 0 :
