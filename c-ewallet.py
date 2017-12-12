@@ -1,4 +1,4 @@
-#consumer.py
+#ewallet.py
 import pika, json, datetime, time
 from peewee import *
 from models import *
