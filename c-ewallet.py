@@ -18,7 +18,7 @@ print ('[X] Waiting for logs')
 def count_quorum():
 	q = Quorum.select()
 	now = datetime.datetime.now()
-	myquorum = ['1406559061','1406559042','1406573356','1406559055']
+	myquorum = ['1406559061','1406559042','1406573356','1406559055','1406623266']
 	q = [x for x in q if x.npm in myquorum]
 	z = []
 	for x in q:
