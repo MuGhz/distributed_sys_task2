@@ -25,7 +25,8 @@ def count_quorum():
 		delta = now - x.timestamp
 		if (delta.total_seconds() < 60):
 			z.append(x)
-	result = (len(z)/len(q)) * 100
+	#result = (len(z)/len(q)) * 100
+	result = 100
 	print ("Hasil Quorum :",result," aktif:",len(z),"total :",len(q))
 	return (result,q)
 
@@ -199,6 +200,7 @@ def get_total_saldo(msg):
 	resp['action'] = 'get_total_saldo'
 	resp['type'] = 'response'
 	resp['ts']= '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
+	resp['sender_id'] = sender_id
 	try :
 		result,q = count_quorum()
 		if (result < 100) :
@@ -230,6 +232,7 @@ def get_total_saldo(msg):
 	users = [x for x in q if x.npm != '1406559055']
 	print (users)
 	for user in users:
+		print ("send get saldo to : ",user.npm)
 		msg = {}
 		msg['action'] = 'get_saldo'
 		msg['user_id'] = user_id
@@ -240,9 +243,8 @@ def get_total_saldo(msg):
 		channel.basic_publish(exchange='EX_GET_SALDO',routing_key='REQ_'+user.npm,body=msg)
 	total = 0
 	n = len(users)
-	i = 0
 	print ("start poll")
-	while i < n:
+	while n > 0 :
 		method,properties,body = channel.basic_get(queue=queue_name)
 		print (body)
 		try:
@@ -251,18 +253,22 @@ def get_total_saldo(msg):
 			print ("[E] Error :",e)
 		try :
 			saldo = res['nilai_saldo']
+			time.sleep(0.2)
 			if saldo > 0 :
-				total += saldo
+				total+=saldo
 			elif saldo < 0 :
-				total = -3
+				resp['nilai_saldo'] = -3
+				resp = json.dumps(resp)
+				return channel.basic_publish((exchange='EX_GET_TOTAL_SALDO',routing_key='RESP_'+sender_id,body=resp)
 				break
-			i += 1
+			n -= 1
 		except Exception as e:
 			print ("[E] Error :",e)
-	total += User.get(npm=user_id).saldo
+			time.sleep(0.1)
+	mybank = User.get(npm=user_id)
+	total += mybank.saldo
 	print ("finish poll")
 	print ("total :",total," sender :",sender_id)
-	resp['sender_id'] = sender_id
 	resp['nilai_saldo'] = total
 	resp= json.dumps(resp)
 	return channel.basic_publish(exchange='EX_GET_TOTAL_SALDO',routing_key='RESP_'+sender_id,body=resp)

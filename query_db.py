@@ -1,8 +1,9 @@
 #query_db.py
 from peewee import *
 from models import *
+from playhouse.sqlite_ext import SqliteExtDatabase
 
-database = SqliteDatabase('tugas2.db')
+database = SqliteExtDatabase('tugas2.db', journal_mode='WAL')
 database.connect()
 try :
 	query = Quorum.select()
