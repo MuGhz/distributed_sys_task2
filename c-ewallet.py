@@ -31,14 +31,15 @@ def register(msg):
 		return channel.basic_publish(exchange='EX_REGISTER',routing_key='RESP_'+sender_id,body=resp)
 	try :
 		User.create(name=nama,npm=user_id)
+		resp['status_register'] = 1
+		resp = json.dumps(resp)
+		return channel.basic_publish(exchange='EX_REGISTER',routing_key='RESP_'+sender_id,body=resp)
 	except Exception as e:
 		print ("[E] Error :",e)
 		resp['status_register'] = -4
 		resp = json.dumps(resp)
 		return channel.basic_publish(exchange='EX_REGISTER',routing_key='RESP_'+sender_id,body=resp)
-	resp['status_register'] = 1
-	resp = json.dumps(resp)
-	return channel.basic_publish(exchange='EX_REGISTER',routing_key='RESP_'+sender_id,body=resp)
+
 
 def request_register(ch, method, properties, body):
 	try :
@@ -225,3 +226,4 @@ def request_get_total_saldo(ch, method, properties, body):
 channel.basic_consume(request_get_total_saldo, queue=queue_name, no_ack=True)
 
 channel.start_consuming()
+database.close()
